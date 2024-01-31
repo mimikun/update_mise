@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "textlint": "^13.4.1",
+    "textlint-rule-preset-ja-technical-writing": "^10.0.1"
+  },
+  "scripts": {
+    "textlint": "textlint --cache ./*.md"
+  }
+}
