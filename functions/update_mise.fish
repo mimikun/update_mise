@@ -1,6 +1,10 @@
 function update_mise --description "Update mise tools"
-    set product_version 0.1.0
+    set product_version 0.2.0
     set product_name "update_mise"
+    set mise_neovim_bindir "$MISE_DATA_DIR/installs/neovim"
+    set bin_nvim "bin/nvim"
+    set mise_zig_bindir "$MISE_DATA_DIR/installs/zig"
+    set bin_zig "bin/zig"
 
     function __help_message
         echo "$product_name(fish)"
@@ -21,10 +25,6 @@ function update_mise --description "Update mise tools"
     end
 
     function __neovim_master
-        mise use neovim@ref:master
-        mise reshim
-        sleep 5
-
         set NVIM_MASTER_COMMIT_HASH_FILE "$HOME/.cache/neovim-master-commit-hash.txt"
         set NVIM_MASTER_COMMIT_HASH (cat "$NVIM_MASTER_COMMIT_HASH_FILE")
         set NVIM_MASTER_NEW_COMMIT_HASH=$(git ls-remote --heads --tags https://github.com/neovim/neovim.git | grep refs/heads/master | cut -f 1)
@@ -40,53 +40,41 @@ function update_mise --description "Update mise tools"
     end
 
     function __neovim_nightly
-        mise use neovim@nightly
-        mise reshim
-        sleep 5
-
-        set VERSION (nvim --version | head -n 1 | string split ' ' | sed -n '2p')
-        set NEW_VERSION (curl --silent https://api.github.com/repos/neovim/neovim/releases/tags/nightly | jq .body | string split ' ' | string split '\n' | sed -n '3p' | sed -e "s/%0ABuild//g")
-        if test $VERSION != $NEW_VERSION
+        set NVIM_NIGHTLY_VERSION ("$mise_neovim_bindir/nightly/$bin_nvim" --version | head -n 1 | string split ' ' | sed -n '2p')
+        set NVIM_NIGHTLY_NEW_VERSION (curl --silent https://api.github.com/repos/neovim/neovim/releases/tags/nightly | jq .body | string split ' ' | string split '\n' | sed -n '3p' | sed -e "s/%0ABuild//g")
+        if test $NVIM_NIGHTLY_VERSION != $NVIM_NIGHTLY_NEW_VERSION
             echo "neovim (latest)nightly found!"
             mise uninstall neovim@nightly
             mise install neovim@nightly
         else
             echo "neovim (latest)nightly is already installed"
-            echo "version: $VERSION"
+            echo "version: $NVIM_NIGHTLY_VERSION"
         end
     end
 
     function __neovim_stable
-        mise use neovim@stable
-        mise reshim
-        sleep 5
-
-        set VERSION (nvim --version | head -n 1 | string split ' ' | sed -n '2p')
-        set NEW_VERSION (curl --silent https://api.github.com/repos/neovim/neovim/releases/tags/stable | jq .body | tr " " "\n" | sed -n 2p | sed -e "s/\\\nBuild//g")
-        if test $VERSION != $NEW_VERSION
+        set NVIM_STABLE_VERSION ("$MISE_NEOVIM_BINDIR/stable/$BIN_NVIM" --version | head -n 1 | string split ' ' | sed -n '2p')
+        set NVIM_STABLE_NEW_VERSION (curl --silent https://api.github.com/repos/neovim/neovim/releases/tags/stable | jq .body | tr " " "\n" | sed -n 2p | sed -e "s/\\\nBuild//g")
+        if test $NVIM_STABLE_VERSION != $NVIM_STABLE_NEW_VERSION
             echo "neovim (latest)stable found!"
             mise uninstall neovim@stable
             mise install neovim@stable
         else
             echo "neovim (latest)nightly is already installed"
-            echo "version: $VERSION"
+            echo "version: $NVIM_STABLE_VERSION"
         end
     end
 
     function __zig_master
-        mise use zig@master
-        mise reshim
-        sleep 5
-
-        set VERSION (zig version)
-        set NEW_VERSION (curl -sSL https://ziglang.org/download/index.json | jq .master.version --raw-output)
-        if test $VERSION != $NEW_VERSION
+        set ZIG_MASTER_VERSION ("$MISE_ZIG_BINDIR/master/$BIN_ZIG" version)
+        set ZIG_MASTER_NEW_VERSION=$(curl -sSL https://ziglang.org/download/index.json | jq .master.version --raw-output)
+        if test $ZIG_MASTER_VERSION != $ZIG_MASTER_NEW_VERSION
             echo "zig (latest)master found!"
             mise uninstall zig@master
             mise install zig@master
         else
             echo "zig (latest)master is already installed"
-            echo "version: $VERSION"
+            echo "version: $ZIG_MASTER_VERSION"
         end
     end
 
