@@ -9,12 +9,11 @@ run_shfmt() {
 }
 
 run_shfmt update_mise.sh
-
 cd utils || exit
-run_shfmt lint.sh
-run_shfmt clean.sh
-run_shfmt format.sh
 run_shfmt install.sh
 run_shfmt changelog.sh
+run_shfmt clean.sh
 run_shfmt create-patch.sh
+run_shfmt format.sh
+run_shfmt lint.sh
 cd "$current_dir" || exit

@@ -1,10 +1,10 @@
 function update_mise --description "Update mise tools"
     set product_version 0.2.0
-    set product_name "update_mise"
+    set product_name update_mise
     set mise_neovim_bindir "$MISE_DATA_DIR/installs/neovim"
-    set bin_nvim "bin/nvim"
+    set bin_nvim bin/nvim
     set mise_zig_bindir "$MISE_DATA_DIR/installs/zig"
-    set bin_zig "bin/zig"
+    set bin_zig bin/zig
 
     function __help_message
         echo "$product_name(fish)"
@@ -30,7 +30,7 @@ function update_mise --description "Update mise tools"
         set NVIM_MASTER_NEW_COMMIT_HASH=$(git ls-remote --heads --tags https://github.com/neovim/neovim.git | grep refs/heads/master | cut -f 1)
         if test $NVIM_MASTER_COMMIT_HASH != $NVIM_MASTER_NEW_COMMIT_HASH
             echo "neovim (latest)master found!"
-            echo "$NVIM_MASTER_NEW_COMMIT_HASH" > "$NVIM_MASTER_COMMIT_HASH_FILE"
+            echo "$NVIM_MASTER_NEW_COMMIT_HASH" >"$NVIM_MASTER_COMMIT_HASH_FILE"
             mise uninstall neovim@ref:master
             mise install neovim@ref:master
         else
@@ -84,11 +84,11 @@ function update_mise --description "Update mise tools"
         case "" -h --help help
             __help_message
         case neovim_master
-            __master
+            __neovim_master
         case neovim_stable
-            __stable
+            __neovim_stable
         case neovim_nightly
-            __nightly
+            __neovim_nightly
         case zig_master
             __zig_master
         case \*

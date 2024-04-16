@@ -7,13 +7,13 @@ charset = utf-8
 indent_style = space
 indent_size = 4
 
+[*.{rb,js,ts,}]
+indent_size = 2
+
 [*.{py,cpp,c,cs,go,rs,sh,fish}]
 indent_size = 4
 
 [Makefile]
-indent_style = tab
-
-[*.md]
 indent_style = tab
 
 [*.{yml,yaml}]
