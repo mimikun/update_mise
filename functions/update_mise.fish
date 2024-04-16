@@ -1,5 +1,5 @@
 function update_mise --description "Update mise tools"
-    set product_version 0.2.0
+    set product_version 0.3.0
     set product_name update_mise
     set mise_neovim_bindir "$MISE_DATA_DIR/installs/neovim"
     set bin_nvim bin/nvim
@@ -17,6 +17,8 @@ function update_mise --description "Update mise tools"
         echo "  neovim_master            Run update_asdf_neovim_master"
         echo "  neovim_stable            Run update_asdf_neovim_stable"
         echo "  neovim_nightly           Run update_asdf_neovim_nightly"
+        echo "  paleovim-master          Run update mise paleovim master"
+        echo "  paleovim-latest          Run update mise paleovim latest"
         echo "  zig_master               Run update_asdf_neovim_nightly"
         echo ""
         echo "Options:"
@@ -65,6 +67,35 @@ function update_mise --description "Update mise tools"
         end
     end
 
+    function __pvim_master
+        set PVIM_MASTER_COMMIT_HASH_FILE "$HOME/.cache/paleovim-master-commit-hash.txt"
+        set PVIM_MASTER_COMMIT_HASH (cat "$PVIM_MASTER_COMMIT_HASH_FILE")
+        set PVIM_MASTER_NEW_COMMIT_HASH=$(git ls-remote --heads --tags https://github.com/vim/vim.git | grep refs/heads/master | cut -f 1)
+        if test $PVIM_MASTER_COMMIT_HASH != $PVIM_MASTER_NEW_COMMIT_HASH
+            echo "paleovim (latest)master found!"
+            echo "$PVIM_MASTER_NEW_COMMIT_HASH" >"$PVIM_MASTER_COMMIT_HASH_FILE"
+            mise uninstall vim@ref:master
+            mise install vim@ref:master
+        else
+            echo "paleovim (latest)master is already installed"
+            echo "commit hash: $PVIM_MASTER_COMMIT_HASH"
+        end
+    end
+
+    function __pvim_latest
+        set PVIM_SECOND_LATEST_VERSION_FILE "$XDG_CACHE_HOME/paleovim-second-latest-version.txt"
+        set PVIM_SECOND_LATEST_VERSION (cat "$PVIM_SECOND_LATEST_VERSION_FILE")
+        set PVIM_LATEST_VERSION (curl --silent https://api.github.com/repos/vim/vim/tags | jq .[0].name --raw-output | sed -e "s/^v//g")
+        if test $PVIM_SECOND_LATEST_VERSION != $PVIM_LATEST_VERSION
+            echo "paleovim latest version ( $PVIM_LATEST_VERSION ) found!"
+            echo "$PVIM_LATEST_VERSION" >"$PVIM_SECOND_LATEST_VERSION_FILE"
+            mise uninstall "vim@$PVIM_SECOND_LATEST_VERSION"
+            mise install "vim@$PVIM_LATEST_VERSION"
+        else
+            echo "paleovim latest version ( $PVIM_SECOND_LATEST_VERSION ) found!"
+        end
+    end
+
     function __zig_master
         set ZIG_MASTER_VERSION ("$MISE_ZIG_BINDIR/master/$BIN_ZIG" version)
         set ZIG_MASTER_NEW_VERSION=$(curl -sSL https://ziglang.org/download/index.json | jq .master.version --raw-output)
@@ -89,6 +120,10 @@ function update_mise --description "Update mise tools"
             __neovim_stable
         case neovim_nightly
             __neovim_nightly
+        case paleovim_master
+            __pvim_master
+        case paleovim_latest
+            __pvim_latest
         case zig_master
             __zig_master
         case \*
