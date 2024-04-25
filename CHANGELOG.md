@@ -1,5 +1,23 @@
 # Changelog
 
+## [v2024.04.25] [v0.4.0]
+
+### Added - 新機能について
+
+- feat!: add zig-latest update command
+
+### Changed - 既存機能の変更について
+
+- chore(deps): update
+
+### Removed - 今回で削除された機能について
+
+なし
+
+### Fixed - 不具合修正について
+
+なし
+
 ## [v2024.04.16] [v0.3.0]
 
 ### Added - 新機能について
