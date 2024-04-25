@@ -1,5 +1,5 @@
 function update_mise --description "Update mise tools"
-    set product_version 0.3.0
+    set product_version 0.4.0
     set product_name update_mise
     set mise_neovim_bindir "$MISE_DATA_DIR/installs/neovim"
     set bin_nvim bin/nvim
@@ -14,12 +14,13 @@ function update_mise --description "Update mise tools"
         echo "    $product_name <COMMAND> <SUBCOMMANDS>"
         echo ""
         echo "Commands:"
-        echo "  neovim_master            Run update_asdf_neovim_master"
-        echo "  neovim_stable            Run update_asdf_neovim_stable"
-        echo "  neovim_nightly           Run update_asdf_neovim_nightly"
-        echo "  paleovim-master          Run update mise paleovim master"
-        echo "  paleovim-latest          Run update mise paleovim latest"
-        echo "  zig_master               Run update_asdf_neovim_nightly"
+        echo "    neovim_master             Run update_mise_neovim_master"
+        echo "    neovim_stable             Run update_mise_neovim_stable"
+        echo "    neovim_nightly            Run update_mise_neovim_nightly"
+        echo "    paleovim-master           Run update mise paleovim master"
+        echo "    paleovim-latest           Run update mise paleovim latest"
+        echo "    zig_master                Run update_mise_zig_master"
+        echo "    zig_master                Run update_mise_zig_latest"
         echo ""
         echo "Options:"
         echo "    --version, -v, version    print $product_name version"
@@ -109,6 +110,19 @@ function update_mise --description "Update mise tools"
         end
     end
 
+    function __zig_latest
+        set ZIG_LATEST_VERSION ("$MISE_ZIG_BINDIR/latest/$BIN_ZIG" version)
+        set ZIG_LATEST_NEW_VERSION=$(mise latest zig)
+        if test $ZIG_LATEST_VERSION != $ZIG_LATEST_NEW_VERSION
+            echo "zig (latest)version found!"
+            mise uninstall "zig@$ZIG_LATEST_VERSION"
+            mise install "zig@$ZIG_LATEST_NEW_VERSION"
+        else
+            echo "zig latest is already installed"
+            echo "version: zig $ZIG_LATEST_VERSION"
+        end
+    end
+
     switch "$cmd"
         case -v --version version
             echo "$product_name(fish) v$product_version"
@@ -126,6 +140,8 @@ function update_mise --description "Update mise tools"
             __pvim_latest
         case zig_master
             __zig_master
+        case zig_latest
+            __zig_latest
         case \*
             echo "$product_name: Unknown command: \"$cmd\"" >&2 && return 1
     end
