@@ -1,17 +1,17 @@
 function update_mise --description "Update mise tools"
-    set product_version 0.4.0
-    set product_name update_mise
-    set mise_neovim_bindir "$MISE_DATA_DIR/installs/neovim"
-    set bin_nvim bin/nvim
-    set mise_zig_bindir "$MISE_DATA_DIR/installs/zig"
-    set bin_zig bin/zig
+    set -f PRODUCT_VERSION 0.5.0
+    set -f PRODUCT_NAME update_mise
+    set -f MISE_NEOVIM_BINDIR "$MISE_DATA_DIR/installs/neovim"
+    set -f BIN_NVIM bin/nvim
+    set -f MISE_ZIG_BINDIR "$MISE_DATA_DIR/installs/zig"
+    set -f BIN_ZIG bin/zig
 
     function __help_message
-        echo "$product_name(fish)"
+        echo "$PRODUCT_NAME(fish)"
         echo "Update mise tools"
         echo ""
         echo "Usage:"
-        echo "    $product_name <COMMAND> <SUBCOMMANDS>"
+        echo "    $PRODUCT_NAME <COMMAND> <SUBCOMMANDS>"
         echo ""
         echo "Commands:"
         echo "    neovim_master             Run update_mise_neovim_master"
@@ -23,109 +23,110 @@ function update_mise --description "Update mise tools"
         echo "    zig_master                Run update_mise_zig_latest"
         echo ""
         echo "Options:"
-        echo "    --version, -v, version    print $product_name version"
+        echo "    --version, -v, version    print $PRODUCT_NAME version"
         echo "    --help, -h, help          print this help"
     end
 
     function __neovim_master
-        set NVIM_MASTER_COMMIT_HASH_FILE "$HOME/.cache/neovim-master-commit-hash.txt"
-        set NVIM_MASTER_COMMIT_HASH (cat "$NVIM_MASTER_COMMIT_HASH_FILE")
-        set NVIM_MASTER_NEW_COMMIT_HASH=$(git ls-remote --heads --tags https://github.com/neovim/neovim.git | grep refs/heads/master | cut -f 1)
-        if test $NVIM_MASTER_COMMIT_HASH != $NVIM_MASTER_NEW_COMMIT_HASH
+        set -l commit_hash_file "$HOME/.cache/neovim-master-commit-hash.txt"
+        set -l commit_hash (cat "$commit_hash_file")
+        set -l new_commit_hash (git ls-remote --heads --tags https://github.com/neovim/neovim.git | grep refs/heads/master | cut -f 1)
+
+        if test $commit_hash != $new_commit_hash
             echo "neovim (latest)master found!"
-            echo "$NVIM_MASTER_NEW_COMMIT_HASH" >"$NVIM_MASTER_COMMIT_HASH_FILE"
+            echo "$new_commit_hash" >"$commit_hash_file"
             mise uninstall neovim@ref:master
             mise install neovim@ref:master
         else
             echo "neovim (latest)master is already installed"
-            echo "commit hash: $MASTER_COMMIT_HASH"
+            echo "commit hash: $commit_hash"
         end
     end
 
     function __neovim_nightly
-        set NVIM_NIGHTLY_VERSION ("$mise_neovim_bindir/nightly/$bin_nvim" --version | head -n 1 | string split ' ' | sed -n '2p')
-        set NVIM_NIGHTLY_NEW_VERSION (curl --silent https://api.github.com/repos/neovim/neovim/releases/tags/nightly | jq .body | string split ' ' | string split '\n' | sed -n '3p' | sed -e "s/%0ABuild//g")
-        if test $NVIM_NIGHTLY_VERSION != $NVIM_NIGHTLY_NEW_VERSION
+        set -l version ("$MISE_NEOVIM_BINDIR/nightly/$BIN_NVIM" --version | head -n 1 | string split ' ' | sed -n '2p')
+        set -l new_version (curl --silent https://api.github.com/repos/neovim/neovim/releases/tags/nightly | jq .body | string split ' ' | string split '\n' | sed -n '3p' | sed -e "s/%0ABuild//g")
+
+        if test $version != $new_version
             echo "neovim (latest)nightly found!"
             mise uninstall neovim@nightly
             mise install neovim@nightly
         else
-            echo "neovim (latest)nightly is already installed"
-            echo "version: $NVIM_NIGHTLY_VERSION"
+            echo "neovim (latest)nightly ( $version )is already installed"
         end
     end
 
     function __neovim_stable
-        set NVIM_STABLE_VERSION ("$MISE_NEOVIM_BINDIR/stable/$BIN_NVIM" --version | head -n 1 | string split ' ' | sed -n '2p')
-        set NVIM_STABLE_NEW_VERSION (curl --silent https://api.github.com/repos/neovim/neovim/releases/tags/stable | jq .body | tr " " "\n" | sed -n 2p | sed -e "s/\\\nBuild//g")
-        if test $NVIM_STABLE_VERSION != $NVIM_STABLE_NEW_VERSION
-            echo "neovim (latest)stable found!"
+        set -l version ("$MISE_NEOVIM_BINDIR/stable/$BIN_NVIM" --version | head -n 1 | string split ' ' | sed -n '2p')
+        set -l new_version (curl --silent https://api.github.com/repos/neovim/neovim/releases/tags/stable | jq .body | tr " " "\n" | sed -n 2p | sed -e "s/\\\nBuild//g")
+
+        if test $version != $new_version[]
+            echo "neovim (latest)stable ( $new_version ) found!"
             mise uninstall neovim@stable
             mise install neovim@stable
         else
-            echo "neovim (latest)nightly is already installed"
-            echo "version: $NVIM_STABLE_VERSION"
+            echo "neovim (latest)stable ( $version ) is already installed"
         end
     end
 
     function __pvim_master
-        set PVIM_MASTER_COMMIT_HASH_FILE "$HOME/.cache/paleovim-master-commit-hash.txt"
-        set PVIM_MASTER_COMMIT_HASH (cat "$PVIM_MASTER_COMMIT_HASH_FILE")
-        set PVIM_MASTER_NEW_COMMIT_HASH=$(git ls-remote --heads --tags https://github.com/vim/vim.git | grep refs/heads/master | cut -f 1)
-        if test $PVIM_MASTER_COMMIT_HASH != $PVIM_MASTER_NEW_COMMIT_HASH
+        set -l commit_hash_file = "$HOME/.cache/paleovim-master-commit-hash.txt"
+        set -l commit_hash (cat "$commit_hash_file")
+        set -l new_commit_hash (git ls-remote --heads --tags https://github.com/vim/vim.git | grep refs/heads/master | cut -f 1)
+
+        if test $commit_hash != $new_commit_hash
             echo "paleovim (latest)master found!"
-            echo "$PVIM_MASTER_NEW_COMMIT_HASH" >"$PVIM_MASTER_COMMIT_HASH_FILE"
+            echo "$new_commit_hash" >"$commit_hash_file"
             mise uninstall vim@ref:master
             mise install vim@ref:master
         else
             echo "paleovim (latest)master is already installed"
-            echo "commit hash: $PVIM_MASTER_COMMIT_HASH"
+            echo "commit hash: $commit_hash"
         end
     end
 
     function __pvim_latest
-        set PVIM_SECOND_LATEST_VERSION_FILE "$XDG_CACHE_HOME/paleovim-second-latest-version.txt"
-        set PVIM_SECOND_LATEST_VERSION (cat "$PVIM_SECOND_LATEST_VERSION_FILE")
-        set PVIM_LATEST_VERSION (curl --silent https://api.github.com/repos/vim/vim/tags | jq .[0].name --raw-output | sed -e "s/^v//g")
-        if test $PVIM_SECOND_LATEST_VERSION != $PVIM_LATEST_VERSION
-            echo "paleovim latest version ( $PVIM_LATEST_VERSION ) found!"
-            echo "$PVIM_LATEST_VERSION" >"$PVIM_SECOND_LATEST_VERSION_FILE"
-            mise uninstall "vim@$PVIM_SECOND_LATEST_VERSION"
-            mise install "vim@$PVIM_LATEST_VERSION"
+        set -l version (mise current vim)
+        set -l new_version (mise latest vim)
+
+        if test $version != $new_version
+            echo "paleovim latest version ( $new_version ) found!"
+            mise uninstall "vim@$version"
+            mise install "vim@$new_version"
         else
-            echo "paleovim latest version ( $PVIM_SECOND_LATEST_VERSION ) found!"
+            echo "paleovim latest version ( $version ) is already installed"
         end
     end
 
     function __zig_master
-        set ZIG_MASTER_VERSION ("$MISE_ZIG_BINDIR/master/$BIN_ZIG" version)
-        set ZIG_MASTER_NEW_VERSION=$(curl -sSL https://ziglang.org/download/index.json | jq .master.version --raw-output)
-        if test $ZIG_MASTER_VERSION != $ZIG_MASTER_NEW_VERSION
-            echo "zig (latest)master found!"
+        set -l version ("$MISE_ZIG_BINDIR/master/$BIN_ZIG" version)
+        set -l new_version (curl -sSL https://ziglang.org/download/index.json | jq .master.version --raw-output)
+
+        if test $version != $new_version
+            echo "zig (latest)master ( $new_version ) found!"
             mise uninstall zig@master
             mise install zig@master
         else
-            echo "zig (latest)master is already installed"
-            echo "version: $ZIG_MASTER_VERSION"
+            echo "zig (latest)master ( $version )is already installed"
         end
     end
 
     function __zig_latest
-        set ZIG_LATEST_VERSION ("$MISE_ZIG_BINDIR/latest/$BIN_ZIG" version)
-        set ZIG_LATEST_NEW_VERSION=$(mise latest zig)
-        if test $ZIG_LATEST_VERSION != $ZIG_LATEST_NEW_VERSION
+        set -l version ("$MISE_ZIG_BINDIR/latest/$BIN_ZIG" version)
+        set -l new_version (mise latest zig)
+
+        if test $version != $new_version
             echo "zig (latest)version found!"
-            mise uninstall "zig@$ZIG_LATEST_VERSION"
-            mise install "zig@$ZIG_LATEST_NEW_VERSION"
+            mise uninstall "zig@$version"
+            mise install "zig@$new_version"
         else
-            echo "zig latest is already installed"
-            echo "version: zig $ZIG_LATEST_VERSION"
+            echo "zig latest ( $version )is already installed"
         end
     end
 
     switch "$cmd"
         case -v --version version
-            echo "$product_name(fish) v$product_version"
+            echo "$PRODUCT_NAME(fish) v$PRODUCT_VERSION"
         case "" -h --help help
             __help_message
         case neovim_master
@@ -143,6 +144,6 @@ function update_mise --description "Update mise tools"
         case zig_latest
             __zig_latest
         case \*
-            echo "$product_name: Unknown command: \"$cmd\"" >&2 && return 1
+            echo "$PRODUCT_NAME: Unknown command: \"$cmd\"" >&2 && return 1
     end
 end
