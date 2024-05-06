@@ -99,15 +99,18 @@ function update_mise --description "Update mise tools"
     end
 
     function __zig_master
-        set -l version ("$MISE_ZIG_BINDIR/master/$BIN_ZIG" version)
-        set -l new_version (curl -sSL https://ziglang.org/download/index.json | jq .master.version --raw-output)
+        set -l zig_version_file "$HOME/.cache/zig-master-version.txt"
+        set -l zig_version (cat "$zig_version_file")
+        set -l new_zig_version (curl -sSL https://ziglang.org/download/index.json | jq .master.version --raw-output)
 
-        if test $version != $new_version
-            echo "zig (latest)master ( $new_version ) found!"
-            mise uninstall zig@master
-            mise install zig@master
+        if test $zig_version != $new_zig_version
+            echo "zig (latest)master ( $new_zig_version ) found!"
+            echo "$new_zig_version" >"$zig_version_file"
+            mise uninstall zig@ref:master
+            mise install zig@ref:master
         else
-            echo "zig (latest)master ( $version )is already installed"
+            echo "zig (latest)master ( $zig_version )is already installed"
+            echo "version: $zig_version"
         end
     end
 
