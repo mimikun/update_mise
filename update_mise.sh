@@ -4,7 +4,7 @@
 # 変数定義
 #=======================
 
-readonly PRODUCT_VERSION="0.5.0"
+readonly PRODUCT_VERSION="0.6.0"
 PRODUCT_NAME="$(basename "${0}")"
 readonly MISE_NEOVIM_BINDIR="$MISE_DATA_DIR/installs/neovim"
 readonly BIN_NVIM="bin/nvim"

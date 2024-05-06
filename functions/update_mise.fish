@@ -1,5 +1,5 @@
 function update_mise --description "Update mise tools"
-    set -f PRODUCT_VERSION 0.5.0
+    set -f PRODUCT_VERSION 0.6.0
     set -f PRODUCT_NAME update_mise
     set -f MISE_NEOVIM_BINDIR "$MISE_DATA_DIR/installs/neovim"
     set -f BIN_NVIM bin/nvim
