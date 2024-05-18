@@ -1,5 +1,23 @@
 # Changelog
 
+## [v2024.05.18] [v0.7.0]
+
+### Added - 新機能について
+
+なし
+
+### Changed - 既存機能の変更について
+
+なし
+
+### Removed - 今回で削除された機能について
+
+- chore: neovim is no longer managed by mise
+
+### Fixed - 不具合修正について
+
+なし
+
 ## [v2024.05.06] [v0.6.0]
 
 ### Added - 新機能について
