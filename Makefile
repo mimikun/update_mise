@@ -108,6 +108,20 @@ shell-format :
 changelog :
 	bash utils/changelog.sh
 
+## Run git cleanfetch
+.PHONY : clean-fetch
+clean-fetch :
+	bash utils/git-clean-fetch.sh
+
+## Run git pull
+.PHONY : pull
+pull :
+	git pull
+
+## Run workday morning routine
+.PHONY : morning-routine
+morning-routine : clean-fetch delete-branch pull patch-branch
+
 ## Show help
 .PHONY : help
 help :
